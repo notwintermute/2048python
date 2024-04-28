@@ -1,7 +1,9 @@
+from math import log2
 
 
+# eval function
 
-# following code taken from 6502 on StackOverflow
+# following monotonicity code taken from 6502 on StackOverflow
 # https://stackoverflow.com/questions/4983258/check-list-monotonicity
 def non_decreasing(L):
     return all(x <= y for x, y in zip(L, L[1:]))
@@ -14,8 +16,8 @@ def non_increasing(L):
 def monotonic(L):
     return non_decreasing(L) or non_increasing(L)
 
+
 # Eval Function
-from math import log2
 def evaluation(active_game):
     # lost game check
     if active_game.game_lost():
@@ -23,7 +25,7 @@ def evaluation(active_game):
 
     grid = active_game.board
     # raw game score
-    score = log2(active_game.score+1)
+    score = log2(active_game.score + 1)
 
     # highest tile
     highest = 0
@@ -61,9 +63,8 @@ def evaluation(active_game):
             if active_game.board[i][j] == 0:
                 empty += 1
 
-
     # collect results in an array
-    resultant_eval = [score, highest, 3**monotonicity_hor, 3**monotonicity_ver, 4**monotonicity_snake, 12*empty]
+    resultant_eval = [score, highest, 3 ** monotonicity_hor, 3 ** monotonicity_ver, 4 ** monotonicity_snake, 12 * empty]
     return sum(resultant_eval)
 
 
@@ -75,9 +76,11 @@ if __name__ == "__main__":
                   [0, 2, 4, 8],
                   [0, 2, 4, 8],
                   [0, 2, 4, 8]]
+    # noinspection PyTypeChecker
     print("Test 1 :", evaluation(game))
     game.board = [[8, 4, 2, 0],
                   [8, 4, 2, 0],
                   [8, 4, 2, 0],
                   [8, 4, 2, 0]]
+    # noinspection PyTypeChecker
     print("Test 2 :", evaluation(game))

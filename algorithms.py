@@ -3,14 +3,15 @@ from evaluation import evaluation
 import statistics
 import time
 
+
 def highest_tile(state):
     grid = state.board
-    highest = 0
+    high = 0
     for i in range(4):
         for j in range(4):
-            if grid[i][j] > highest:
-                highest = grid[i][j]
-    return highest
+            if grid[i][j] > high:
+                high = grid[i][j]
+    return high
 
 
 # returns possible states after a move as a list of 2d lists
@@ -73,17 +74,18 @@ def alphabeta(state, depth, alpha, beta, waiting_for_move=True):
             for j in range(4):
                 if state.board[i][j] == 0:
                     newstate_2 = deepcopy(state)
-                    #newstate_4 = deepcopy(state)
+                    # newstate_4 = deepcopy(state)
                     newstate_2.board[i][j] = 2
-                    #if newstate_2.game_lost():
-                        #return value
-                    #newstate_4.board[i][j] = 4
+                    # if newstate_2.game_lost():
+                    # return value
+                    # newstate_4.board[i][j] = 4
                     value = min(value, alphabeta(newstate_2, depth - 1, alpha, beta))
                     if value < alpha:
                         return value
                     beta = min(beta, value)
 
     return value
+
 
 def expectimax(state, depth, waiting_for_move=True):
     if depth == 0 or state.game_lost():
@@ -93,7 +95,7 @@ def expectimax(state, depth, waiting_for_move=True):
         valid = possible_moves(state)
         for move in valid:
             future = state.future(move)
-            value = max(value, expectimax(future, depth - 1,False))
+            value = max(value, expectimax(future, depth - 1, False))
         return value
     else:
         expectedvalue = 0
@@ -104,8 +106,8 @@ def expectimax(state, depth, waiting_for_move=True):
                     newstate_4 = deepcopy(state)
                     newstate_2.board[i][j] = 2
                     newstate_4.board[i][j] = 4
-                    expectedvalue += expectimax(newstate_2, depth-1)*0.9
-                    expectedvalue += expectimax(newstate_4, depth-1)*0.1
+                    expectedvalue += expectimax(newstate_2, depth - 1) * 0.9
+                    expectedvalue += expectimax(newstate_4, depth - 1) * 0.1
         return expectedvalue
 
 
@@ -126,6 +128,7 @@ def alphabeta_call(state, depth):
         evals.append(alphabeta(future, depth, -1000000000, 1000000000, False))
     return valid[evals.index(max(evals))]
 
+
 def expectimax_call(state, depth):
     valid = possible_moves(state)
     evals = []
@@ -134,9 +137,11 @@ def expectimax_call(state, depth):
         evals.append(expectimax(future, depth, False))
     return valid[evals.index(max(evals))]
 
+
 if __name__ == "__main__":
     from grid_2048 import Game
-    tests = [False, False, False, False, False, False, False, False, True, False]
+
+    tests = [False, False, False, False, False, False, False, False, False, False, True]
     game = Game()
 
     if tests[0]:
@@ -180,7 +185,6 @@ if __name__ == "__main__":
         for x in range(4):
             print(alphabeta_call(game, x))
 
-
     if tests[5]:
         print("6. Ten runs with minimax Depth 1")
         scores = []
@@ -200,7 +204,6 @@ if __name__ == "__main__":
             highest.append(highest_tile(game))
         print(scores)
         print(highest)
-
 
     if tests[6]:
         print("7. Ten runs with alphabeta Depth 4")
@@ -223,7 +226,6 @@ if __name__ == "__main__":
         print()
         print(f"Highest Tiles: {highest}\nMean: {statistics.mean(highest)}\nStdDev: {statistics.stdev(highest)}")
 
-
     if tests[7]:
         print("8. Timing Minimax")
         for d in range(4):
@@ -234,29 +236,39 @@ if __name__ == "__main__":
                 while not game.game_lost():
                     m = minimax_call(game, d)
                     game.play(m)
-                times.append(time.time()-curr)
+                times.append(time.time() - curr)
             print(f"Depth {d}: {statistics.mean(times)} seconds")
 
     if tests[8]:
         print("9. Timing Alphabeta")
         for d in range(5):
             times = []
-            for x in range(1):
+            for x in range(10):
                 game = Game()
                 curr = time.time()
                 while not game.game_lost():
                     m = alphabeta_call(game, d)
                     game.play(m)
-                times.append(time.time()-curr)
-            print(f"Depth {d}: {statistics.mean(times)*100} seconds")
+                times.append(time.time() - curr)
+            print(f"Depth {d}: {statistics.mean(times)} seconds")
 
     if tests[9]:
         print("10. Comparing Single Alphabeta vs Minimax Calls with Depth 6")
         game = Game()
         curr = time.time()
         minimax_call(game, 1)
-        print(f"Minimax : {(time.time()-curr)*500*1000/60} seconds")
+        print(f"Minimax : {(time.time() - curr) * 500 * 1000 / 60} seconds")
         curr = time.time()
         alphabeta_call(game, 4)
-        print(f"Alphabeta : {(time.time() - curr)*500*1000/60} seconds")
+        print(f"Alphabeta : {(time.time() - curr) * 500 * 1000 / 60} seconds")
 
+    if tests[10]:
+        print("11. Expectimax Single Move Timing Depth 0-4")
+        for d in range(5):
+            times = []
+            for x in range(1):
+                game = Game()
+                curr = time.time()
+                expectimax_call(game, d)
+                times.append(time.time() - curr)
+            print(f"Depth {d}: {statistics.mean(times)*1000*100} seconds")

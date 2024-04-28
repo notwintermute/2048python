@@ -1,7 +1,7 @@
-from grid_2048 import Game
-from algorithms import alphabeta_call, expectimax_call, highest_tile
 import time
-import statistics
+
+from algorithms import alphabeta_call, expectimax_call, highest_tile
+from grid_2048 import Game
 
 
 def run_alphabeta(depth):
@@ -32,6 +32,7 @@ def run_alphabeta_increasing(initial_depth, end_depth, margin):
         game.play(m)
     return game.score, highest_tile(game), time.time() - curr, k
 
+
 def run_expectimax(depth):
     curr = time.time()
     game = Game()
@@ -44,6 +45,20 @@ def run_expectimax(depth):
         game.play(m)
     return game.score, highest_tile(game), time.time() - curr, k
 
+def run_expectimax_increasing(initial_depth, end_depth, margin):
+    curr = time.time()
+    game = Game()
+    k = 1
+    d = initial_depth
+    while not game.game_lost():
+        k += 1
+        if k % 100 == 0:
+            print(f"Move {k}")
+        if k > margin:
+            d = end_depth
+        m = expectimax_call(game, d)
+        game.play(m)
+    return game.score, highest_tile(game), time.time() - curr, k
 def parse_results(r):
     scores = []
     highest = []
@@ -75,5 +90,5 @@ if 1 > 0:  # Run 100
     results = []
     for x in range(100):
         print(f"Game {x + 1}")
-        results.append(run_expectimax(2))
+        results.append(run_expectimax_increasing(2,3,700))
     parse_results(results)
